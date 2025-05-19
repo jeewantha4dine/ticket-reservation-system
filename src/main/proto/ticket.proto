@@ -25,6 +25,7 @@ message ShowResponse {
 message BookingRequest {
   string show_id = 1;
   bool include_after_party = 2;
+  int32 ticket_count = 3;
 }
 
 message BookingResponse {

@@ -72,22 +72,43 @@ public class TicketServiceImpl extends TicketServiceGrpc.TicketServiceImplBase {
         int regular = show.getRegular();
         int vip = show.getVip();
         int afterParty = show.getAfterParty();
+        int count = request.getTicketCount();
 
-        if (request.getIncludeAfterParty() && afterParty <= 0) {
+        if (count <= 0) {
             responseObserver.onNext(Ticket.BookingResponse.newBuilder()
                     .setSuccess(false)
-                    .setMessage("No after-party tickets available")
+                    .setMessage("Invalid ticket count")
                     .build());
             responseObserver.onCompleted();
             return;
         }
 
+        if (regular < count) {
+            responseObserver.onNext(Ticket.BookingResponse.newBuilder()
+                    .setSuccess(false)
+                    .setMessage("Not enough regular tickets available")
+                    .build());
+            responseObserver.onCompleted();
+            return;
+        }
+
+        if (request.getIncludeAfterParty() && afterParty < count) {
+            responseObserver.onNext(Ticket.BookingResponse.newBuilder()
+                    .setSuccess(false)
+                    .setMessage("Not enough after-party tickets")
+                    .build());
+            responseObserver.onCompleted();
+            return;
+        }
+
+
         Ticket.ShowRequest updated = Ticket.ShowRequest.newBuilder()
                 .setName(show.getName())
-                .setRegular(regular - 1)
-                .setVip(vip)
-                .setAfterParty(request.getIncludeAfterParty() ? afterParty - 1 : afterParty)
+                .setRegular(regular - count)
+                .setVip(vip)  // Optional logic if you want VIP handling
+                .setAfterParty(request.getIncludeAfterParty() ? afterParty - count : afterParty)
                 .build();
+
 
         shows.put(request.getShowId(), updated);
 

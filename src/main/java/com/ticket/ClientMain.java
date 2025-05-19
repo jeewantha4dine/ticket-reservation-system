@@ -55,10 +55,13 @@ public class ClientMain {
                 String showId = sc.nextLine();
                 System.out.print("Include after-party? (true/false): ");
                 boolean withParty = sc.nextBoolean();
+                System.out.print("How many tickets?: ");
+                int count = sc.nextInt();
 
                 Ticket.BookingRequest bookReq = Ticket.BookingRequest.newBuilder()
                         .setShowId(showId)
                         .setIncludeAfterParty(withParty)
+                        .setTicketCount(count)
                         .build();
 
                 Ticket.BookingResponse bookRes = stub.reserveTicket(bookReq);
