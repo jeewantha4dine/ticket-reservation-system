@@ -14,7 +14,7 @@ public class ServerMain {
         String nodeId = "node-" + port;
 
         // 1. Start ZooKeeper Leader Election
-        new Thread(() -> new LeaderElection(nodeId).start()).start();
+        new Thread(() -> new LeaderElection(nodeId, port).start()).start();
 
         // 2. Start gRPC Server
         Server server = ServerBuilder

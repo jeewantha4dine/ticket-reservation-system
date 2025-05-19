@@ -9,10 +9,12 @@ import org.apache.curator.retry.ExponentialBackoffRetry;
 public class LeaderElection extends LeaderSelectorListenerAdapter {
 
     private final String nodeId;
+    private final int port; // NEW: Pass in the gRPC port of this node
     public static boolean isLeader = false;
 
-    public LeaderElection(String nodeId) {
+    public LeaderElection(String nodeId, int port) {
         this.nodeId = nodeId;
+        this.port = port;
     }
 
     public void start() {
@@ -28,15 +30,29 @@ public class LeaderElection extends LeaderSelectorListenerAdapter {
     @Override
     public void takeLeadership(CuratorFramework client) {
         isLeader = true;
-        System.out.println(nodeId + " is now the LEADER");
+        String address = "localhost:" + port;
+
+        // Register leader address in ZooKeeper
+        try {
+            if (client.checkExists().forPath("/current-leader") != null) {
+                client.delete().forPath("/current-leader");
+            }
+            client.create()
+                    .withMode(org.apache.zookeeper.CreateMode.EPHEMERAL)
+                    .forPath("/current-leader", address.getBytes());
+
+            System.out.println("👑 " + nodeId + " is now the LEADER");
+            System.out.println("📌 Registered in ZooKeeper as leader: " + address);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         try {
             Thread.sleep(Long.MAX_VALUE);
         } catch (InterruptedException ignored) {
         } finally {
             isLeader = false;
-            System.out.println(nodeId + " lost leadership");
+            System.out.println("⚠️ " + nodeId + " lost leadership");
         }
     }
 }
-
