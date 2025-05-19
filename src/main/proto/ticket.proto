@@ -1,0 +1,71 @@
+syntax = "proto3";
+
+package ticket;
+
+service TicketService {
+  rpc AddShow (ShowRequest) returns (ShowResponse);
+  rpc ReserveTicket (BookingRequest) returns (BookingResponse);
+  rpc syncShow (SyncRequest) returns (SyncResponse);
+  rpc syncReservation (SyncReservationRequest) returns (SyncResponse);
+  rpc syncState (SyncStateRequest) returns (SyncStateResponse);
+}
+
+message ShowRequest {
+  string name = 1;
+  int32 regular = 2;
+  int32 vip = 3;
+  int32 after_party = 4;
+}
+
+message ShowResponse {
+  string show_id = 1;
+  string message = 2;
+}
+
+message BookingRequest {
+  string show_id = 1;
+  bool include_after_party = 2;
+}
+
+message BookingResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+
+message SyncRequest {
+  string show_id = 1;
+  string name = 2;
+  int32 regular = 3;
+  int32 vip = 4;
+  int32 after_party = 5;
+}
+
+message SyncResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message SyncReservationRequest {
+  string show_id = 1;
+  int32 regular = 2;
+  int32 vip = 3;
+  int32 after_party = 4;
+}
+
+message SyncStateRequest {
+  string node_id = 1;
+}
+
+message ShowData {
+  string show_id = 1;
+  string name = 2;
+  int32 regular = 3;
+  int32 vip = 4;
+  int32 after_party = 5;
+}
+
+message SyncStateResponse {
+  repeated ShowData shows = 1;
+}
+
